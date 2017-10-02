@@ -120,6 +120,14 @@ test.group('Response', function (assert) {
     assert.equal(res.text, '')
   })
 
+  test('should send empty response when request body is undefined', async function (assert) {
+    const server = http.createServer(function (req, res) {
+      Response.send(req, res)
+    })
+    const res = await supertest(server).get('/').expect(204)
+    assert.equal(res.text, '')
+  })
+
   test('should send boolean as response', async function (assert) {
     const body = true
     const server = http.createServer(function (req, res) {

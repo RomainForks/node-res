@@ -244,7 +244,7 @@ Response.end = function (res) {
  * nodeRes.send(req, res, Buffer.from('Hello world', 'utf-8'))
  * ```
  */
-Response.send = function (req, res, body, options) {
+Response.send = function (req, res, body = null, options) {
   const clonedOptions = Object.assign({}, options, { ignoreEtag: false })
 
   if (body === null) {
