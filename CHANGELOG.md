@@ -1,3 +1,13 @@
+<a name="4.0.1"></a>
+## [4.0.1](https://github.com/poppinss/node-res/compare/v4.0.0...v4.0.1) (2017-10-02)
+
+
+### Features
+
+* **response:** allow option to ignore etag ([989abe8](https://github.com/poppinss/node-res/commit/989abe8))
+
+
+
 <a name="4.0.0"></a>
 # [4.0.0](https://github.com/poppinss/node-res/compare/v3.0.2...v4.0.0) (2017-06-16)
 
