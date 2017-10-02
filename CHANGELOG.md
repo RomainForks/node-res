@@ -1,3 +1,13 @@
+<a name="4.0.2"></a>
+## [4.0.2](https://github.com/poppinss/node-res/compare/v4.0.0...v4.0.2) (2017-10-02)
+
+
+### Bug Fixes
+
+* **response:** response.send handle `undefined` body ([e4897d8](https://github.com/poppinss/node-res/commit/e4897d8)), closes [#2](https://github.com/poppinss/node-res/issues/2)
+* **response:** response.send options allow user to override ([438298f](https://github.com/poppinss/node-res/commit/438298f))
+
+
 <a name="4.0.1"></a>
 ## [4.0.1](https://github.com/poppinss/node-res/compare/v4.0.0...v4.0.1) (2017-10-02)
 
