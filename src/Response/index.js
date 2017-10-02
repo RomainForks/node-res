@@ -226,6 +226,7 @@ Response.end = function (res) {
  * @param  {Object} req
  * @param  {Object} res
  * @param  {Mixed} body
+ * @param  {Object} options [ignoreEtag = false]
  *
  * @return {void}
  *
@@ -243,7 +244,9 @@ Response.end = function (res) {
  * nodeRes.send(req, res, Buffer.from('Hello world', 'utf-8'))
  * ```
  */
-Response.send = function (req, res, body) {
+Response.send = function (req, res, body, options) {
+  const clonedOptions = Object.assign({}, options, { ignoreEtag: false })
+
   if (body === null) {
     Response.status(res, 204)
     Response.removeHeader(res, 'Content-Type')
@@ -268,9 +271,12 @@ Response.send = function (req, res, body) {
   }
 
   /**
-   * generating and setting etag
+   * generating and setting etag only when ignoreEtag
+   * is not true
    */
-  Response.safeHeader(res, 'ETag', etag(chunk))
+  if (!clonedOptions.ignoreEtag) {
+    Response.safeHeader(res, 'ETag', etag(chunk))
+  }
 
   /**
    * removing unneccessary headers if response
@@ -297,6 +303,7 @@ Response.send = function (req, res, body) {
  * @param  {Object} req
  * @param  {Object} res
  * @param  {Object} body
+ * @param  {Object} options [ignoreEtag = false]
  *
  * @return {void}
  *
@@ -306,9 +313,9 @@ Response.send = function (req, res, body) {
  * nodeRes.json(req, res, [ 'virk', 'joe' ])
  * ```
  */
-Response.json = function (req, res, body) {
+Response.json = function (req, res, body, options) {
   Response.type(res, 'application/json')
-  Response.send(req, res, body)
+  Response.send(req, res, body, options)
 }
 
 /**
@@ -321,6 +328,7 @@ Response.json = function (req, res, body) {
  * @param  {Object}   res
  * @param  {Object}   body
  * @param  {String}   [callbackFn = 'callback']
+ * @param  {Object}   options [ignoreEtag = false]
  *
  * @return {void}
  *
@@ -329,7 +337,7 @@ Response.json = function (req, res, body) {
  * nodeRes.jsonp(req, res, { name: 'virk' }, 'callback')
  * ```
  */
-Response.jsonp = function (req, res, body, callbackFn = 'callback') {
+Response.jsonp = function (req, res, body, callbackFn = 'callback', options) {
   Response.header(res, 'X-Content-Type-Options', 'nosniff')
   Response.type(res, 'text/javascript')
 
@@ -348,7 +356,7 @@ Response.jsonp = function (req, res, body, callbackFn = 'callback') {
    * a function
    */
   body = '/**/ typeof ' + callbackFn + " === 'function' && " + callbackFn + '(' + body + ');'
-  Response.send(req, res, body)
+  Response.send(req, res, body, options)
 }
 
 /**
