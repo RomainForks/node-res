@@ -200,6 +200,7 @@ as 204.
 | req | Object | Yes | &nbsp; |
 | res | Object | Yes | &nbsp; |
 | body | Mixed | Yes | &nbsp; |
+| options | Object | No | An object of options, only option for now is to define whether or not set the `Etag` header. |
 
 **Returns**
 Void
@@ -216,6 +217,11 @@ nodeRes.send(req, res, { greeting: 'Hello world' })
 
 // or Buffer
 nodeRes.send(req, res, Buffer.from('Hello world', 'utf-8'))
+
+// Ignore etag
+nodeRes.send(req, res, 'Hello world', {
+  ignoreEtag: true
+})
 ```
 
 ----
@@ -230,6 +236,7 @@ set to `application/json`.
 | req | Object | Yes | &nbsp; |
 | res | Object | Yes | &nbsp; |
 | body | Object | Yes | &nbsp; |
+| options | Object | No | An object of options, only option for now is to define whether or not set the `Etag` header. |
 
 **Returns**
 Void
@@ -238,6 +245,11 @@ Void
 ```js
 nodeRes.json(req, res, { name: 'virk' })
 nodeRes.json(req, res, [ 'virk', 'joe' ])
+
+// Ignore etag
+nodeRes.json(req, res, {name: 'virk'}, {
+  ignoreEtag: true
+})
 ```
 
 ----
@@ -253,6 +265,7 @@ Make JSONP response with `Content-type` set to
 | res | Object | Yes | &nbsp; |
 | body | Object | Yes | &nbsp; |
 | callbackFn  | String | No | &nbsp; |
+| options | Object | No | An object of options, only option for now is to define whether or not set the `Etag` header. |
 
 **Returns**
 Void
@@ -260,6 +273,12 @@ Void
 **Example**
 ```js
 nodeRes.jsonp(req, res, { name: 'virk' }, 'callback')
+
+
+// Ignore etag
+nodeRes.jsonp(req, res, {name: 'virk'}, 'callback', {
+  ignoreEtag: true
+})
 ```
 
 ----
