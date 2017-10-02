@@ -245,7 +245,7 @@ Response.end = function (res) {
  * ```
  */
 Response.send = function (req, res, body = null, options) {
-  const clonedOptions = Object.assign({}, options, { ignoreEtag: false })
+  const clonedOptions = Object.assign({ ignoreEtag: false }, options)
 
   if (body === null) {
     Response.status(res, 204)
