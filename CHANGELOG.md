@@ -1,3 +1,8 @@
+<a name="4.0.3"></a>
+## [4.0.3](https://github.com/poppinss/node-res/compare/v4.0.2...v4.0.3) (2017-10-26)
+
+
+
 <a name="4.0.2"></a>
 ## [4.0.2](https://github.com/poppinss/node-res/compare/v4.0.0...v4.0.2) (2017-10-02)
 

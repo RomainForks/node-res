@@ -24,7 +24,7 @@ const returnContentAndType = function (body) {
   if (typeof (body) === 'string') {
     return {
       body,
-      type: /^\s*</.test(body) ? 'html' : 'text'
+      type: /^\s*</.test(body) ? 'text/html' : 'text/plain'
     }
   }
 
@@ -33,7 +33,7 @@ const returnContentAndType = function (body) {
    * and type as bin.
    */
   if (Buffer.isBuffer(body)) {
-    return { body, type: 'bin' }
+    return { body, type: 'application/octet-stream' }
   }
 
   /**
@@ -41,14 +41,14 @@ const returnContentAndType = function (body) {
    * a string and return the type as text.
    */
   if (typeof (body) === 'number' || typeof (body) === 'boolean') {
-    return { body: String(body), type: 'text' }
+    return { body: String(body), type: 'text/plain' }
   }
 
   /**
    * Otherwise check whether body is an object or not. If yes
    * stringify it and otherwise return the exact copy.
    */
-  return typeof (body) === 'object' ? { body: JSON.stringify(body), type: 'json' } : { body }
+  return typeof (body) === 'object' ? { body: JSON.stringify(body), type: 'application/json' } : { body }
 }
 
 /**
@@ -257,17 +257,21 @@ Response.send = function (req, res, body = null, options) {
   }
 
   let { body: chunk, type } = returnContentAndType(body)
-  Response.type(res, type)
 
   /**
-   * setting up content length on response headers
+   * Setting content type. Ideally we can use `Response.type`, which
+   * sets the right charset too. But we will be doing extra
+   * processing for no reasons.
+   */
+  if (type) {
+    Response.safeHeader(res, 'Content-Type', `${type}; charset=utf-8`)
+  }
+
+  /**
+   * setting up content length as response header
    */
   if (chunk) {
-    if (!Buffer.isBuffer(chunk)) {
-      chunk = Buffer.from(chunk, 'utf-8')
-    }
-    const length = chunk.length
-    Response.header(res, 'Content-Length', length)
+    Response.header(res, 'Content-Length', Buffer.byteLength(chunk))
   }
 
   /**
@@ -288,10 +292,12 @@ Response.send = function (req, res, body = null, options) {
     Response.removeHeader(res, 'Transfer-Encoding')
   }
 
-  if (req.method !== 'HEAD') {
-    Response.write(res, chunk)
-  }
-  Response.end(res)
+  setImmediate(function () {
+    if (req.method !== 'HEAD') {
+      Response.write(res, chunk)
+    }
+    Response.end(res)
+  })
 }
 
 /**
@@ -314,7 +320,7 @@ Response.send = function (req, res, body = null, options) {
  * ```
  */
 Response.json = function (req, res, body, options) {
-  Response.type(res, 'application/json')
+  Response.safeHeader(res, 'Content-Type', 'application/json; charset=utf-8')
   Response.send(req, res, body, options)
 }
 
@@ -339,7 +345,7 @@ Response.json = function (req, res, body, options) {
  */
 Response.jsonp = function (req, res, body, callbackFn = 'callback', options) {
   Response.header(res, 'X-Content-Type-Options', 'nosniff')
-  Response.type(res, 'text/javascript')
+  Response.safeHeader(res, 'Content-Type', 'text/javascript; charset=utf-8')
 
   body = JSON.stringify(body)
 
