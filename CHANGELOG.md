@@ -1,3 +1,14 @@
+<a name="4.0.4"></a>
+## [4.0.4](https://github.com/poppinss/node-res/compare/v4.0.2...v4.0.4) (2017-10-29)
+
+
+### Bug Fixes
+
+* **ReDos:** Regular Expression Denial of Service ([#4](https://github.com/poppinss/node-res/issues/4)) ([9c17076](https://github.com/poppinss/node-res/commit/9c17076))
+* **response:** move write statement out of setImmediate ([b62071d](https://github.com/poppinss/node-res/commit/b62071d))
+
+
+
 <a name="4.0.3"></a>
 ## [4.0.3](https://github.com/poppinss/node-res/compare/v4.0.2...v4.0.3) (2017-10-26)
 
