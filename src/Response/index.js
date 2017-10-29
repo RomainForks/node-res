@@ -292,10 +292,11 @@ Response.send = function (req, res, body = null, options) {
     Response.removeHeader(res, 'Transfer-Encoding')
   }
 
+  if (req.method !== 'HEAD') {
+    Response.write(res, chunk)
+  }
+
   setImmediate(function () {
-    if (req.method !== 'HEAD') {
-      Response.write(res, chunk)
-    }
     Response.end(res)
   })
 }
