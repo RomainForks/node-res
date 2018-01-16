@@ -1,6 +1,6 @@
 {
   "name": "node-res",
-  "version": "4.0.4",
+  "version": "4.1.0",
   "description": "Nodejs http response builder",
   "main": "index.js",
   "scripts": {
@@ -16,18 +16,17 @@
   "license": "MIT",
   "devDependencies": {
     "co-functional": "^0.2.1",
-    "coveralls": "^2.13.3",
-    "cz-conventional-changelog": "^2.0.0",
-    "japa": "^1.0.5",
+    "coveralls": "^3.0.0",
+    "cz-conventional-changelog": "^2.1.0",
+    "japa": "^1.0.6",
     "japa-cli": "^1.0.1",
-    "nyc": "^11.2.1",
+    "nyc": "^11.4.1",
     "semver": "^5.4.1",
     "standard": "^10.0.3",
     "supertest": "^3.0.0"
   },
   "dependencies": {
     "content-disposition": "^0.5.2",
-    "content-type": "^1.0.4",
     "etag": "^1.8.1",
     "mime-types": "^2.1.17",
     "send": "^0.16.1",

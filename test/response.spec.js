@@ -305,7 +305,7 @@ test.group('Response', function (assert) {
 
   test('should be able to override the charset using the type method', async function (assert) {
     const server = http.createServer(function (req, res) {
-      Response.type(res, 'json', 'myjson')
+      Response.type(res, 'application/json', 'myjson')
       Response.send(req, res, '')
     })
     const res = await supertest(server).get('/').expect(200)
