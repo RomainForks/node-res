@@ -11,7 +11,6 @@
 const mime = require('mime-types')
 const etag = require('etag')
 const contentDisposition = require('content-disposition')
-const contentType = require('content-type')
 const vary = require('vary')
 const send = require('send')
 const methods = require('./methods')
@@ -206,11 +205,12 @@ Response.write = function (res, body) {
  * @method end
  *
  * @param  {Object} res
+ * @param  {Mixed}  payload
  *
  * @return {void}
  */
-Response.end = function (res) {
-  res.end()
+Response.end = function (res, payload) {
+  res.end(payload)
 }
 
 /**
@@ -226,7 +226,6 @@ Response.end = function (res) {
  * @param  {Object} req
  * @param  {Object} res
  * @param  {Mixed} body
- * @param  {Object} options [ignoreEtag = false]
  *
  * @return {void}
  *
@@ -244,9 +243,7 @@ Response.end = function (res) {
  * nodeRes.send(req, res, Buffer.from('Hello world', 'utf-8'))
  * ```
  */
-Response.send = function (req, res, body = null, options) {
-  const clonedOptions = Object.assign({ ignoreEtag: false }, options)
-
+Response.send = function (req, res, body = null, generateEtag = true) {
   if (body === null) {
     Response.status(res, 204)
     Response.removeHeader(res, 'Content-Type')
@@ -256,6 +253,8 @@ Response.send = function (req, res, body = null, options) {
     return
   }
 
+  const headers = typeof res.getHeaders === 'function' ? res.getHeaders() : (res._headers || {})
+
   let { body: chunk, type } = returnContentAndType(body)
 
   /**
@@ -263,23 +262,22 @@ Response.send = function (req, res, body = null, options) {
    * sets the right charset too. But we will be doing extra
    * processing for no reasons.
    */
-  if (type) {
-    Response.safeHeader(res, 'Content-Type', `${type}; charset=utf-8`)
+  if (type && !headers['content-type']) {
+    Response.header(res, 'Content-Type', `${type}; charset=utf-8`)
   }
 
   /**
    * setting up content length as response header
    */
-  if (chunk) {
+  if (chunk && !headers['content-length']) {
     Response.header(res, 'Content-Length', Buffer.byteLength(chunk))
   }
 
   /**
-   * generating and setting etag only when ignoreEtag
-   * is not true
+   * Generate etag when instructured for
    */
-  if (!clonedOptions.ignoreEtag) {
-    Response.safeHeader(res, 'ETag', etag(chunk))
+  if (generateEtag) {
+    Response.header(res, 'ETag', etag(chunk))
   }
 
   /**
@@ -293,12 +291,11 @@ Response.send = function (req, res, body = null, options) {
   }
 
   if (req.method !== 'HEAD') {
-    Response.write(res, chunk)
+    Response.end(res, chunk)
+    return
   }
 
-  setImmediate(function () {
-    Response.end(res)
-  })
+  Response.end(res)
 }
 
 /**
@@ -476,7 +473,7 @@ Response.vary = function (res, field) {
  *
  * @param  {Object} res
  * @param  {String} type
- * @param  {String} [charset = 'utf-8']
+ * @param  {String} [charset]
  * @return {void}
  *
  * @example
@@ -486,9 +483,7 @@ Response.vary = function (res, field) {
  * nodeRes.type(res, 'application/json')
  * ```
  */
-Response.type = function (res, type, charset = 'utf-8') {
-  const ct = type.indexOf('/') === -1 ? mime.lookup(type) || 'text/html' : type
-  const parsedType = contentType.parse(ct)
-  parsedType.parameters.charset = charset
-  Response.safeHeader(res, 'Content-Type', contentType.format(parsedType))
+Response.type = function (res, type, charset) {
+  type = charset ? `${type}; charset=${charset}` : type
+  Response.safeHeader(res, 'Content-Type', mime.contentType(type))
 }
