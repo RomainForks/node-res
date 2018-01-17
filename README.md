@@ -11,7 +11,7 @@
 <img src="http://res.cloudinary.com/adonisjs/image/upload/q_100/v1502279403/poppinss_z8uk2j.png" width="300px" align="right" vspace="20px" />
 </a>
 
-`node-res` is a simple module to make HTTP response in Node.js. In offers helpers to make it easier to set `headers`, define response statuses and properly parse response type to set appropriate headers.
+`node-res` is a simple module to make HTTP response in Node.js. It offers helpers to make it easier to set `headers`, define response statuses and properly parse response type to set appropriate headers.
 
 For example:
 
@@ -31,7 +31,7 @@ nodeRes.send(req, res, '<h2> Hello world </h2>')
 1. [node-req](https://npmjs.org/package/node-req)
 2. [node-cookie](https://npmjs.org/package/node-cookie)
 
-## Responding to requests.
+## Basic Example
 
 ```javascript
 const http = require('http')
@@ -52,140 +52,173 @@ http.createServer(function (req, res) {
 
 ```
 
-nodeRes takes http server `res` object as first argument to perform any operations.
+## API
 
-## Methods
+* [getHeader(res, key)](#module_Response..getHeader) ⇒ <code>Array</code> \| <code>String</code>
+* [header(res, key, value)](#module_Response..header) ⇒ <code>void</code>
+* [append(res, key, value)](#module_Response..append) ⇒ <code>void</code>
+* [status(res, code)](#module_Response..status) ⇒ <code>void</code>
+* [safeHeader(res, key, value)](#module_Response..safeHeader) ⇒ <code>void</code>
+* [removeHeader(res, key)](#module_Response..removeHeader) ⇒ <code>void</code>
+* [write(res, body)](#module_Response..write) ⇒ <code>void</code>
+* [end(res, [payload])](#module_Response..end) ⇒ <code>void</code>
+* [send(req, res, body, [generateEtag])](#module_Response..send) ⇒ <code>void</code>
+* [etag(res, body)](#module_Response..etag) ⇒ <code>void</code>
+* [prepare(res, body)](#module_Response..prepare) ⇒ <code>String</code>
+* [prepareJsonp(res, body, callbackFn)](#module_Response..prepareJsonp) ⇒ <code>String</code>
+* [json(req, res, body, [generateEtag])](#module_Response..json) ⇒ <code>void</code>
+* [jsonp(req, res, body, [callbackFn], [generateEtag])](#module_Response..jsonp) ⇒ <code>void</code>
+* [download(req, res, filePath, [options])](#module_Response..download) ⇒ <code>void</code>
+* [attachment(req, res, filePath, [name], [disposition], [options])](#module_Response..attachment) ⇒ <code>void</code>
+* [location(res, url)](#module_Response..location) ⇒ <code>void</code>
+* [redirect(req, res, url, [status])](#module_Response..redirect) ⇒ <code>void</code>
+* [vary(res, field)](#module_Response..vary) ⇒ <code>void</code>
+* [type(req, res, [charset])](#module_Response..type) ⇒ <code>void</code>
 
-### getHeader
+<a name="module_Response..getHeader"></a>
+
+### getHeader(res, key) ⇒ <code>Array</code> \| <code>String</code>
 Returns the value of an existing header on
 the response object
 
-**Params**
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
+**Returns**: <code>Array</code> \| <code>String</code> - Return type depends upon the header existing value  
 
-| Param | Type | Required | Description |
-|-----|-------|------|------|
-| res | Object | Yes | &nbsp; |
-| key | String | Yes | &nbsp; |
+| Param | Type |
+| --- | --- |
+| res | <code>ServerResponse</code> | 
+| key | <code>String</code> | 
 
-**Returns**
-Array
-
-**Example**
+**Example**  
 ```js
 nodeRes.getHeader(res, 'Content-type')
 ```
+<a name="module_Response..header"></a>
 
-----
-### header
-Sets header on the response object
+### header(res, key, value) ⇒ <code>void</code>
+Sets header on the response object. This method will wipe off
+existing values. To append to existing values, use `append`.
 
-**Params**
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
 
-| Param | Type | Required | Description |
-|-----|-------|------|------|
-| res | Object | Yes | &nbsp; |
-| key | String | Yes | &nbsp; |
-| value | String | Yes | &nbsp; |
+| Param | Type |
+| --- | --- |
+| res | <code>http.ServerResponse</code> | 
+| key | <code>String</code> | 
+| value | <code>String</code> \| <code>Array</code> | 
 
-**Returns**
-Void
-
-**Example**
+**Example**  
 ```js
 nodeRes.header(res, 'Content-type', 'application/json')
 
 // or set an array of headers
 nodeRes.header(res, 'Link', ['<http://localhost/>', '<http://localhost:3000/>'])
 ```
+<a name="module_Response..append"></a>
 
-----
-### status
+### append(res, key, value) ⇒ <code>void</code>
+Appends value to the header existing values.
+
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
+
+| Param | Type |
+| --- | --- |
+| res | <code>http.ServerResponse</code> | 
+| key | <code>String</code> | 
+| value | <code>String</code> \| <code>Array</code> | 
+
+**Example**  
+```js
+nodeRes.append(res, 'Content-type', 'application/json')
+
+// or append an array of headers
+nodeRes.append(res, 'Link', ['<http://localhost/>', '<http://localhost:3000/>'])
+```
+<a name="module_Response..status"></a>
+
+### status(res, code) ⇒ <code>void</code>
 Set status on the HTTP res object
 
-**Params**
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
 
-| Param | Type | Required | Description |
-|-----|-------|------|------|
-| res | Object | Yes | &nbsp; |
-| code | Number | Yes | &nbsp; |
+| Param | Type |
+| --- | --- |
+| res | <code>http.ServerResponse</code> | 
+| code | <code>Number</code> | 
 
-**Returns**
-Void
-
-**Example**
+**Example**  
 ```js
-nodeRes.status(200)
+nodeRes.status(res, 200)
 ```
+<a name="module_Response..safeHeader"></a>
 
-----
-### safeHeader
+### safeHeader(res, key, value) ⇒ <code>void</code>
 Sets the header on response object, only if it
 does not exists.
 
-**Params**
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
 
-| Param | Type | Required | Description |
-|-----|-------|------|------|
-| res | Object | Yes | &nbsp; |
-| key | String | Yes | &nbsp; |
-| value | String | Yes | &nbsp; |
+| Param | Type |
+| --- | --- |
+| res | <code>http.ServerResponse</code> | 
+| key | <code>String</code> | 
+| value | <code>String</code> \| <code>Array</code> | 
 
-**Returns**
-Void
-
-**Example**
+**Example**  
 ```js
 nodeRes.safeHeader(res, 'Content-type', 'application/json')
 ```
+<a name="module_Response..removeHeader"></a>
 
-----
-### removeHeader
-removing header using it's key
+### removeHeader(res, key) ⇒ <code>void</code>
+Removes the header from response
 
-**Params**
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
 
-| Param | Type | Required | Description |
-|-----|-------|------|------|
-| res | Object | Yes | &nbsp; |
-| key | String | Yes | &nbsp; |
+| Param | Type |
+| --- | --- |
+| res | <code>http.ServerResponse</code> | 
+| key | <code>String</code> | 
 
-**Returns**
-Void
+**Example**  
+```js
+nodeRes.removeHeader(res, 'Content-type')
+```
+<a name="module_Response..write"></a>
 
-----
-### write
+### write(res, body) ⇒ <code>void</code>
 Write string or buffer to the response object.
 
-**Params**
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
 
-| Param | Type | Required | Description |
-|-----|-------|------|------|
-| res | Object | Yes | &nbsp; |
-| body | String|Buffer | Yes | &nbsp; |
+| Param | Type |
+| --- | --- |
+| res | <code>http.ServerResponse</code> | 
+| body | <code>String</code> \| <code>Buffer</code> | 
 
-**Returns**
-Void
-
-**Example**
+**Example**  
 ```js
 nodeRes.write(res, 'Hello world')
 ```
+<a name="module_Response..end"></a>
 
-----
-### end
+### end(res, [payload]) ⇒ <code>void</code>
 Explictly end HTTP response
 
-**Params**
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
 
-| Param | Type | Required | Description |
-|-----|-------|------|------|
-| res | Object | Yes | &nbsp; |
+| Param | Type |
+| --- | --- |
+| res | <code>http.ServerResponse</code> | 
+| [payload] | <code>String</code> \| <code>Buffer</code> | 
 
-**Returns**
-Void
+**Example**  
+```js
+nodeRes.end(res, 'Hello world')
+```
+<a name="module_Response..send"></a>
 
-----
-### send
+### send(req, res, body, [generateEtag]) ⇒ <code>void</code>
 Send body as the HTTP response and end it. Also
 this method will set the appropriate `Content-type`
 and `Content-length`.
@@ -193,19 +226,16 @@ and `Content-length`.
 If body is set to null, this method will end the response
 as 204.
 
-**Params**
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
 
-| Param | Type | Required | Description |
-|-----|-------|------|------|
-| req | Object | Yes | &nbsp; |
-| res | Object | Yes | &nbsp; |
-| body | Mixed | Yes | &nbsp; |
-| options | Object | No | An object of options, only option for now is to define whether or not set the `Etag` header. |
+| Param | Type | Default |
+| --- | --- | --- |
+| req | <code>http.ServerRequest</code> |  | 
+| res | <code>http.ServerResponse</code> |  | 
+| body | <code>Mixed</code> |  | 
+| [generateEtag] | <code>Boolean</code> | <code>true</code> | 
 
-**Returns**
-Void
-
-**Example**
+**Example**  
 ```js
 nodeRes.send(req, res, 'Hello world')
 
@@ -219,247 +249,239 @@ nodeRes.send(req, res, { greeting: 'Hello world' })
 nodeRes.send(req, res, Buffer.from('Hello world', 'utf-8'))
 
 // Ignore etag
-nodeRes.send(req, res, 'Hello world', {
-  ignoreEtag: true
-})
+nodeRes.send(req, res, 'Hello world', false)
 ```
+<a name="module_Response..etag"></a>
 
-----
-### json
+### etag(res, body) ⇒ <code>void</code>
+Sets the Etag header for a given body chunk
+
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
+
+| Param | Type |
+| --- | --- |
+| res | <code>http.ServerResponse</code> | 
+| body | <code>String</code> \| <code>Buffer</code> | 
+
+**Example**  
+```js
+nodeRes.etag(res, 'Hello world')
+```
+<a name="module_Response..prepare"></a>
+
+### prepare(res, body) ⇒ <code>String</code>
+Prepares the response body by encoding it properly. Also
+sets appropriate headers based upn the body content type.
+
+This method is used internally by `send`, so you should
+never use it when calling `send`.
+
+It is helpful when you want to get the final payload and end the
+response at a later stage.
+
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
+
+| Param | Type |
+| --- | --- |
+| res | <code>http.ServerResponse</code> | 
+| body | <code>Mixed</code> | 
+
+**Example**  
+```js
+const chunk = nodeRes.prepare(res, '<h2> Hello </h2>')
+
+if (chunk) {
+  nodeRes.etag(res, chunk)
+
+  if (nodeReq.fresh(req, res)) {
+    chunk = null
+    nodeRes.status(304)
+  }
+
+  nodeRes.end(chunk)
+}
+```
+<a name="module_Response..prepareJsonp"></a>
+
+### prepareJsonp(res, body, callbackFn) ⇒ <code>String</code>
+Prepares response for JSONP
+
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
+
+| Param | Type |
+| --- | --- |
+| res | <code>http.ServerResponse</code> | 
+| body | <code>Object</code> | 
+| callbackFn | <code>String</code> | 
+
+**Example**  
+```js
+const chunk = nodeRes.prepareJsonp(res, '<h2> Hello </h2>', 'callback')
+
+if (chunk) {
+  nodeRes.etag(res, chunk)
+
+  if (nodeReq.fresh(req, res)) {
+    chunk = null
+    nodeRes.status(304)
+  }
+
+  nodeRes.end(chunk)
+}
+```
+<a name="module_Response..json"></a>
+
+### json(req, res, body, [generateEtag]) ⇒ <code>void</code>
 Returns the HTTP response with `Content-type`
 set to `application/json`.
 
-**Params**
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
 
-| Param | Type | Required | Description |
-|-----|-------|------|------|
-| req | Object | Yes | &nbsp; |
-| res | Object | Yes | &nbsp; |
-| body | Object | Yes | &nbsp; |
-| options | Object | No | An object of options, only option for now is to define whether or not set the `Etag` header. |
+| Param | Type | Default |
+| --- | --- | --- |
+| req | <code>http.IncomingMessage</code> |  | 
+| res | <code>http.ServerResponse</code> |  | 
+| body | <code>Object</code> |  | 
+| [generateEtag] | <code>Boolean</code> | <code>true</code> | 
 
-**Returns**
-Void
-
-**Example**
+**Example**  
 ```js
 nodeRes.json(req, res, { name: 'virk' })
 nodeRes.json(req, res, [ 'virk', 'joe' ])
-
-// Ignore etag
-nodeRes.json(req, res, {name: 'virk'}, {
-  ignoreEtag: true
-})
 ```
+<a name="module_Response..jsonp"></a>
 
-----
-### jsonp
+### jsonp(req, res, body, [callbackFn], [generateEtag]) ⇒ <code>void</code>
 Make JSONP response with `Content-type` set to
 `text/javascript`.
 
-**Params**
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
 
-| Param | Type | Required | Description |
-|-----|-------|------|------|
-| req | Object | Yes | &nbsp; |
-| res | Object | Yes | &nbsp; |
-| body | Object | Yes | &nbsp; |
-| callbackFn  | String | No | &nbsp; |
-| options | Object | No | An object of options, only option for now is to define whether or not set the `Etag` header. |
+| Param | Type | Default |
+| --- | --- | --- |
+| req | <code>http.IncomingMessage</code> |  | 
+| res | <code>http.ServerResponse</code> |  | 
+| body | <code>Object</code> |  | 
+| [callbackFn] | <code>String</code> | <code>&#x27;callback&#x27;</code> | 
+| [generateEtag] | <code>Boolean</code> | <code>true</code> | 
 
-**Returns**
-Void
-
-**Example**
+**Example**  
 ```js
 nodeRes.jsonp(req, res, { name: 'virk' }, 'callback')
-
-
-// Ignore etag
-nodeRes.jsonp(req, res, {name: 'virk'}, 'callback', {
-  ignoreEtag: true
-})
 ```
+<a name="module_Response..download"></a>
 
-----
-### download
+### download(req, res, filePath, [options]) ⇒ <code>void</code>
 Download file as a stream. Stream will be closed once
 download is finished.
 
 Options are passed directly to [send](https://www.npmjs.com/package/send)
 
-**Params**
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
 
-| Param | Type | Required | Description |
-|-----|-------|------|------|
-| req | Object | Yes | &nbsp; |
-| res | Object | Yes | &nbsp; |
-| filePath | String | Yes | &nbsp; |
-| options  | Object | No | &nbsp; |
+| Param | Type | Default |
+| --- | --- | --- |
+| req | <code>http.IncomingMessage</code> |  | 
+| res | <code>http.ServerResponse</code> |  | 
+| filePath | <code>String</code> |  | 
+| [options] | <code>Object</code> | <code>{}</code> | 
 
-**Returns**
-Void
-
-**Example**
+**Example**  
 ```js
 nodeRes.download(req, res, '/storage/data.txt')
 ```
+<a name="module_Response..attachment"></a>
 
-----
-### attachment
+### attachment(req, res, filePath, [name], [disposition], [options]) ⇒ <code>void</code>
 Send file as a stream with Content-Disposition of attachment
 which forces the download of the file.
 
-**Params**
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
 
-| Param | Type | Required | Description |
-|-----|-------|------|------|
-| req | Object | Yes | &nbsp; |
-| res | Object | Yes | &nbsp; |
-| filePath | String | Yes | &nbsp; |
-| name  | String | No | &nbsp; |
-| disposition  | String | No | &nbsp; |
-| options | Object | No | &nbsp; |
+| Param | Type | Default |
+| --- | --- | --- |
+| req | <code>http.IncomingMessage</code> |  | 
+| res | <code>http.ServerResponse</code> |  | 
+| filePath | <code>String</code> |  | 
+| [name] | <code>String</code> | <code>filePath</code> | 
+| [disposition] | <code>String</code> | <code>&#x27;attachment&#x27;</code> | 
+| [options] | <code>Object</code> |  | 
 
-**Returns**
-Void
-
-**Example**
+**Example**  
 ```js
 nodeRes.attachment(req, res, '/storage/data.txt', 'data.txt')
 ```
+<a name="module_Response..location"></a>
 
-----
-### location
+### location(res, url) ⇒ <code>void</code>
 Set `Location` header on the HTTP response.
 
-**Params**
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
 
-| Param | Type | Required | Description |
-|-----|-------|------|------|
-| res | Object | Yes | &nbsp; |
-| url | String | Yes | &nbsp; |
+| Param | Type |
+| --- | --- |
+| res | <code>http.ServerResponse</code> | 
+| url | <code>String</code> | 
 
-**Returns**
-Void
+<a name="module_Response..redirect"></a>
 
-----
-### redirect
+### redirect(req, res, url, [status]) ⇒ <code>void</code>
 Redirect the HTTP request to the given url.
 
-**Params**
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
 
-| Param | Type | Required | Description |
-|-----|-------|------|------|
-| req | Object | Yes | &nbsp; |
-| res | Object | Yes | &nbsp; |
-| url | String | Yes | &nbsp; |
-| status  | Number | No | &nbsp; |
+| Param | Type | Default |
+| --- | --- | --- |
+| req | <code>http.IncomingMessage</code> |  | 
+| res | <code>http.ServerResponse</code> |  | 
+| url | <code>String</code> |  | 
+| [status] | <code>Number</code> | <code>302</code> | 
 
-**Returns**
-Void
-
-**Example**
+**Example**  
 ```js
 nodeRes.redirect(req, res, '/')
 ```
+<a name="module_Response..vary"></a>
 
-----
-### vary
+### vary(res, field) ⇒ <code>void</code>
 Add vary header to the HTTP response.
 
-**Params**
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
 
-| Param | Type | Required | Description |
-|-----|-------|------|------|
-| res | Object | Yes | &nbsp; |
-| field | String | Yes | &nbsp; |
+| Param | Type |
+| --- | --- |
+| res | <code>http.ServerResponse</code> | 
+| field | <code>String</code> | 
 
-**Returns**
-Void
+<a name="module_Response..type"></a>
 
-----
-### type
+### type(req, res, [charset]) ⇒ <code>void</code>
 Set content type header by looking up the actual
-type and setting charset to utf8
+type and setting charset to utf8.
 
-**Params**
+### Note
+When defining custom charset, you must set pass the complete
+content type, otherwise `false` will be set as the
+content-type header.
 
-| Param | Type | Required | Description |
-|-----|-------|------|------|
-| res | Object | Yes | &nbsp; |
-| type | String | Yes | &nbsp; |
-| charset  | String | No | &nbsp; |
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
 
-**Returns**
-Void
+| Param | Type |
+| --- | --- |
+| req | <code>http.IncomingMessage</code> | 
+| res | <code>http.ServerResponse</code> | 
+| [charset] | <code>String</code> | 
 
-**Example**
+**Example**  
 ```js
 nodeRes.type(res, 'html')
+
 nodeRes.type(res, 'json')
-nodeRes.type(res, 'application/json')
+
+nodeRes.type(res, 'text/html', 'ascii')
 ```
-
-----
-
-
-## Descriptive methods
-Node res also has support for descriptive methods, they set the status itself without calling the `status` method.
-
-```javascript
-nodeRes.ok(req, res, 'Hello world') // will set 200 as status
-nodeRes.unauthorized(req, res, 'You must login first') // will set 401 as status
-```
-
-| method | http response status |
-|--------|-------------|
-| continue | 100 |
-| switchingProtocols | 101 |
-| ok | 200 |
-| created | 201 |
-| accepted | 202 |
-| nonAuthoritativeInformation | 203 |
-| noContent | 204 |
-| resetContent | 205 |
-| partialContent | 206 |
-| multipleChoices | 300 |
-| movedPermanently | 301 |
-| found | 302 |
-| seeOther | 303 |
-| notModified | 304 |
-| useProxy | 305 |
-| temporaryRedirect | 307 |
-| badRequest | 400 |
-| unauthorized | 401 |
-| paymentRequired | 402 |
-| forbidden | 403 |
-| notFound | 404 |
-| methodNotAllowed | 405 |
-| notAcceptable | 406 |
-| proxyAuthenticationRequired | 407 |
-| requestTimeout | 408 |
-| conflict | 409 |
-| gone | 410 |
-| lengthRequired | 411 |
-| preconditionFailed | 412 |
-| requestEntityTooLarge | 413 |
-| requestUriTooLong | 414 |
-| unsupportedMediaType | 415 |
-| requestedRangeNotSatisfiable | 416 |
-| expectationFailed | 417 |
-| unprocessableEntity | 422 |
-| tooManyRequests | 429 |
-| internalServerError | 500 |
-| notImplemented | 501 |
-| badGateway | 502 |
-| serviceUnavailable | 503 |
-| gatewayTimeout | 504 |
-| httpVersionNotSupported | 505 |
-
 
 [appveyor-image]: https://img.shields.io/appveyor/ci/thetutlage/node-res/master.svg?style=flat-square
-
 [appveyor-url]: https://ci.appveyor.com/project/thetutlage/node-res
 
 [npm-image]: https://img.shields.io/npm/v/node-res.svg?style=flat-square
@@ -469,5 +491,4 @@ nodeRes.unauthorized(req, res, 'You must login first') // will set 401 as status
 [travis-url]: https://travis-ci.org/poppinss/node-res
 
 [coveralls-image]: https://img.shields.io/coveralls/poppinss/node-res/develop.svg?style=flat-square
-
-[coveralls-url]: https://coveralls.io/github/poppinss/node-res
+[coveralls-url]: https://coveralls.io/github/poppinss/node-res 
