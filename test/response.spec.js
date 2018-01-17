@@ -314,12 +314,31 @@ test.group('Response', function (assert) {
 
   test('should append to existing headers', async function (assert) {
     const server = http.createServer(function (req, res) {
-      Response.header(res, 'Foo', 'bar')
-      Response.header(res, 'Foo', 'baz')
-      Response.header(res, 'Foo', 'foo')
+      res.setHeader('Foo', 'bar')
+      Response.append(res, 'Foo', 'baz')
+      Response.append(res, 'Foo', 'foo')
       res.end()
     })
     const res = await supertest(server).get('/').expect(200)
     assert.equal(res.headers.foo, 'bar, baz, foo')
+  })
+
+  test('should append to existing headers with mixed headers type', async function (assert) {
+    const server = http.createServer(function (req, res) {
+      Response.append(res, 'Foo', ['bar'])
+      Response.append(res, 'Foo', 'baz')
+      Response.append(res, 'Foo', ['foo'])
+      res.end()
+    })
+    const res = await supertest(server).get('/').expect(200)
+    assert.equal(res.headers.foo, 'bar, baz, foo')
+  })
+
+  test('set content type as html when body is an HTML string', async function (assert) {
+    const server = http.createServer(function (req, res) {
+      Response.send(req, res, '<h1> hello </h1>')
+      res.end()
+    })
+    await supertest(server).get('/').expect('content-type', 'text/html; charset=utf-8').expect(200)
   })
 })

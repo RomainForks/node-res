@@ -1,3 +1,13 @@
+<a name="4.1.1"></a>
+## [4.1.1](https://github.com/poppinss/node-res/compare/v4.1.0...v4.1.1) (2018-01-17)
+
+
+### Features
+
+* **response:** add `prepare` & `prepareJsonp` methods ([a765dd9](https://github.com/poppinss/node-res/commit/a765dd9))
+
+
+
 <a name="4.1.0"></a>
 # [4.1.0](https://github.com/poppinss/node-res/compare/v4.0.4...v4.1.0) (2018-01-16)
 

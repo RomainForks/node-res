@@ -51,12 +51,10 @@ const returnContentAndType = function (body) {
 }
 
 /**
- * This is a static utility class to make HTTP response
- * in Node.js. It works like a facade over HTTP res
- * object but without side-effects.
+ * A simple IO module to make consistent HTTP response, without
+ * worrying about underlying details.
  *
- * @class Response
- * @static
+ * @module Response
  */
 const Response = exports = module.exports = {}
 
@@ -77,10 +75,10 @@ Response.descriptiveMethods = Object.keys(methods).map((method) => {
  *
  * @method getHeader
  *
- * @param  {Object}  res
+ * @param  {ServerResponse}  res
  * @param  {String}  key
  *
- * @return {Array}
+ * @return {Array|String} Return type depends upon the header existing value
  *
  * @example
  * ```js
@@ -92,13 +90,14 @@ Response.getHeader = function (res, key) {
 }
 
 /**
- * Sets header on the response object
+ * Sets header on the response object. This method will wipe off
+ * existing values. To append to existing values, use `append`.
  *
  * @method header
  *
- * @param  {Object} res
- * @param  {String} key
- * @param  {String} value
+ * @param  {http.ServerResponse}         res
+ * @param  {String}         key
+ * @param  {String|Array}   value
  *
  * @return {void}
  *
@@ -111,20 +110,37 @@ Response.getHeader = function (res, key) {
  * ```
  */
 Response.header = function (res, key, value) {
-  value = Array.isArray(value) ? value : [value]
+  const values = Array.isArray(value) ? value : [value]
+  res.setHeader(key, values.map(String))
+}
 
-  /**
-   * Fetch existing headers, so that we can append
-   * to them
-   */
-  const previousHeader = Response.getHeader(res, key)
-  if (!previousHeader) {
-    res.setHeader(key, value.map(String))
-    return
-  }
+/**
+ * Appends value to the header existing values.
+ *
+ * @method append
+ *
+ * @param  {http.ServerResponse}         res
+ * @param  {String}         key
+ * @param  {String|Array}   value
+ *
+ * @return {void}
+ *
+ * @example
+ * ```js
+ * nodeRes.append(res, 'Content-type', 'application/json')
+ *
+ * // or append an array of headers
+ * nodeRes.append(res, 'Link', ['<http://localhost/>', '<http://localhost:3000/>'])
+ * ```
+ */
+Response.append = function (res, key, value) {
+  const previousValue = Response.getHeader(res, key)
 
-  const headers = Array.isArray(previousHeader) ? previousHeader.concat(value) : [previousHeader].concat(value)
-  res.setHeader(key, headers.map(String))
+  const headers = previousValue
+  ? (Array.isArray(previousValue) ? previousValue.concat(value) : [previousValue].concat(value))
+  : value
+
+  Response.header(res, key, headers)
 }
 
 /**
@@ -132,14 +148,14 @@ Response.header = function (res, key, value) {
  *
  * @method status
  *
- * @param  {Object} res
+ * @param  {http.ServerResponse} res
  * @param  {Number} code
  *
  * @return {void}
  *
  * @example
  * ```js
- * nodeRes.status(200)
+ * nodeRes.status(res, 200)
  * ```
  */
 Response.status = function (res, code) {
@@ -152,9 +168,9 @@ Response.status = function (res, code) {
  *
  * @method safeHeader
  *
- * @param  {Object}   res
- * @param  {String}   key
- * @param  {String}   value
+ * @param  {http.ServerResponse}   res
+ * @param  {String}                key
+ * @param  {String|Array}          value
  *
  * @return {void}
  *
@@ -170,11 +186,19 @@ Response.safeHeader = function (res, key, value) {
 }
 
 /**
- * @description removing header using it's key
+ * Removes the header from response
+ *
  * @method removeHeader
- * @param  {Object}     res
- * @param  {String}     key
+ *
+ * @param  {http.ServerResponse}     res
+ * @param  {String}                  key
+ *
  * @return {void}
+ *
+ * @example
+ * ```js
+ * nodeRes.removeHeader(res, 'Content-type')
+ * ```
  */
 Response.removeHeader = function (res, key) {
   res.removeHeader(key)
@@ -185,8 +209,8 @@ Response.removeHeader = function (res, key) {
  *
  * @method write
  *
- * @param  {Object} res
- * @param  {String|Buffer} body
+ * @param  {http.ServerResponse}  res
+ * @param  {String|Buffer}        body
  *
  * @return {void}
  *
@@ -204,10 +228,15 @@ Response.write = function (res, body) {
  *
  * @method end
  *
- * @param  {Object} res
- * @param  {Mixed}  payload
+ * @param  {http.ServerResponse}         res
+ * @param  {String|Buffer}               [payload]
  *
  * @return {void}
+ *
+ * @example
+ * ```js
+ * nodeRes.end(res, 'Hello world')
+ * ```
  */
 Response.end = function (res, payload) {
   res.end(payload)
@@ -223,9 +252,10 @@ Response.end = function (res, payload) {
  *
  * @method send
  *
- * @param  {Object} req
- * @param  {Object} res
- * @param  {Mixed} body
+ * @param  {http.ServerRequest}   req
+ * @param  {http.ServerResponse}  res
+ * @param  {Mixed}                body
+ * @param  {Boolean}              [generateEtag = true]
  *
  * @return {void}
  *
@@ -241,21 +271,103 @@ Response.end = function (res, payload) {
  *
  * // or Buffer
  * nodeRes.send(req, res, Buffer.from('Hello world', 'utf-8'))
+ *
+ * // Ignore etag
+ * nodeRes.send(req, res, 'Hello world', false)
  * ```
  */
 Response.send = function (req, res, body = null, generateEtag = true) {
+  const chunk = Response.prepare(res, body)
+
+  if (chunk === null || req.method === 'HEAD') {
+    Response.end(res)
+    return
+  }
+
+  /**
+   * Generate etag when instructured for
+   */
+  if (generateEtag) {
+    Response.etag(res, chunk)
+  }
+
+  Response.end(res, chunk)
+}
+
+/**
+ * Sets the Etag header for a given body chunk
+ *
+ * @method etag
+ *
+ * @param  {http.ServerResponse}         res
+ * @param  {String|Buffer}               body
+ *
+ * @return {void}
+ *
+ * @example
+ * ```js
+ * nodeRes.etag(res, 'Hello world')
+ * ```
+ */
+Response.etag = function (res, body) {
+  Response.header(res, 'ETag', etag(body))
+}
+
+/**
+ * Prepares the response body by encoding it properly. Also
+ * sets appropriate headers based upn the body content type.
+ *
+ * This method is used internally by `send`, so you should
+ * never use it when calling `send`.
+ *
+ * It is helpful when you want to get the final payload and end the
+ * response at a later stage.
+ *
+ * @method prepare
+ *
+ * @param  {http.ServerResponse}  res
+ * @param  {Mixed}                body
+ *
+ * @return {String}
+ *
+ * @example
+ * ```js
+ * const chunk = nodeRes.prepare(res, '<h2> Hello </h2>')
+ *
+ * if (chunk) {
+ *   nodeRes.etag(res, chunk)
+ *
+ *   if (nodeReq.fresh(req, res)) {
+ *     chunk = null
+ *     nodeRes.status(304)
+ *   }
+ *
+ *   nodeRes.end(chunk)
+ * }
+ * ```
+ */
+Response.prepare = function (res, body) {
   if (body === null) {
     Response.status(res, 204)
     Response.removeHeader(res, 'Content-Type')
     Response.removeHeader(res, 'Content-Length')
     Response.removeHeader(res, 'Transfer-Encoding')
-    Response.end(res)
-    return
+    return null
+  }
+
+  let { body: chunk, type } = returnContentAndType(body)
+
+  /**
+   * Remove unwanted headers when statuscode is 204 or 304
+   */
+  if (res.statusCode === 204 || res.statusCode === 304) {
+    Response.removeHeader(res, 'Content-Type')
+    Response.removeHeader(res, 'Content-Length')
+    Response.removeHeader(res, 'Transfer-Encoding')
+    return chunk
   }
 
   const headers = typeof res.getHeaders === 'function' ? res.getHeaders() : (res._headers || {})
-
-  let { body: chunk, type } = returnContentAndType(body)
 
   /**
    * Setting content type. Ideally we can use `Response.type`, which
@@ -273,29 +385,51 @@ Response.send = function (req, res, body = null, generateEtag = true) {
     Response.header(res, 'Content-Length', Buffer.byteLength(chunk))
   }
 
-  /**
-   * Generate etag when instructured for
-   */
-  if (generateEtag) {
-    Response.header(res, 'ETag', etag(chunk))
-  }
+  return chunk
+}
+
+/**
+ * Prepares response for JSONP
+ *
+ * @method prepareJsonp
+ *
+ * @param  {http.ServerResponse}       res
+ * @param  {Object}                    body
+ * @param  {String}                    callbackFn
+ *
+ * @return {String}
+ *
+ * @example
+ * ```js
+ * const chunk = nodeRes.prepareJsonp(res, '<h2> Hello </h2>', 'callback')
+ *
+ * if (chunk) {
+ *   nodeRes.etag(res, chunk)
+ *
+ *   if (nodeReq.fresh(req, res)) {
+ *     chunk = null
+ *     nodeRes.status(304)
+ *   }
+ *
+ *   nodeRes.end(chunk)
+ * }
+ * ```
+ */
+Response.prepareJsonp = function (res, body, callbackFn) {
+  Response.header(res, 'X-Content-Type-Options', 'nosniff')
+  Response.safeHeader(res, 'Content-Type', 'text/javascript; charset=utf-8')
+
+  const parsedBody = JSON
+    .stringify(body)
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029')
 
   /**
-   * removing unneccessary headers if response
-   * has certain statusCode
+   * setting up callbackFn on response body , typeof will make
+   * sure not to throw error of client if callbackFn is not
+   * a function
    */
-  if (res.statusCode === 204 || res.statusCode === 304) {
-    Response.removeHeader(res, 'Content-Type')
-    Response.removeHeader(res, 'Content-Length')
-    Response.removeHeader(res, 'Transfer-Encoding')
-  }
-
-  if (req.method !== 'HEAD') {
-    Response.end(res, chunk)
-    return
-  }
-
-  Response.end(res)
+  return '/**/ typeof ' + callbackFn + " === 'function' && " + callbackFn + '(' + parsedBody + ');'
 }
 
 /**
@@ -304,10 +438,10 @@ Response.send = function (req, res, body = null, generateEtag = true) {
  *
  * @method json
  *
- * @param  {Object} req
- * @param  {Object} res
- * @param  {Object} body
- * @param  {Object} options [ignoreEtag = false]
+ * @param  {http.IncomingMessage}  req
+ * @param  {http.ServerResponse}   res
+ * @param  {Object}                body
+ * @param  {Boolean}               [generateEtag = true]
  *
  * @return {void}
  *
@@ -317,9 +451,9 @@ Response.send = function (req, res, body = null, generateEtag = true) {
  * nodeRes.json(req, res, [ 'virk', 'joe' ])
  * ```
  */
-Response.json = function (req, res, body, options) {
+Response.json = function (req, res, body, generateEtag) {
   Response.safeHeader(res, 'Content-Type', 'application/json; charset=utf-8')
-  Response.send(req, res, body, options)
+  Response.send(req, res, body, generateEtag)
 }
 
 /**
@@ -328,11 +462,11 @@ Response.json = function (req, res, body, options) {
  *
  * @method jsonp
  *
- * @param  {Object}   req
- * @param  {Object}   res
- * @param  {Object}   body
- * @param  {String}   [callbackFn = 'callback']
- * @param  {Object}   options [ignoreEtag = false]
+ * @param  {http.IncomingMessage}   req
+ * @param  {http.ServerResponse}    res
+ * @param  {Object}                 body
+ * @param  {String}                 [callbackFn = 'callback']
+ * @param  {Boolean}                [generateEtag = true]
  *
  * @return {void}
  *
@@ -341,26 +475,8 @@ Response.json = function (req, res, body, options) {
  * nodeRes.jsonp(req, res, { name: 'virk' }, 'callback')
  * ```
  */
-Response.jsonp = function (req, res, body, callbackFn = 'callback', options) {
-  Response.header(res, 'X-Content-Type-Options', 'nosniff')
-  Response.safeHeader(res, 'Content-Type', 'text/javascript; charset=utf-8')
-
-  body = JSON.stringify(body)
-
-  /**
-   * replacing non-allowed javascript characters from body
-   */
-  body = body
-    .replace(/\u2028/g, '\\u2028')
-    .replace(/\u2029/g, '\\u2029')
-
-  /**
-   * setting up callbackFn on response body , typeof will make
-   * sure not to throw error of client if callbackFn is not
-   * a function
-   */
-  body = '/**/ typeof ' + callbackFn + " === 'function' && " + callbackFn + '(' + body + ');'
-  Response.send(req, res, body, options)
+Response.jsonp = function (req, res, body, callbackFn = 'callback', generateEtag) {
+  Response.send(req, res, Response.prepareJsonp(res, body, callbackFn), generateEtag)
 }
 
 /**
@@ -371,10 +487,10 @@ Response.jsonp = function (req, res, body, callbackFn = 'callback', options) {
  *
  * @method download
  *
- * @param  {Object} req
- * @param  {Object} res
- * @param  {String} filePath
- * @param  {Object} [options = {}]
+ * @param  {http.IncomingMessage} req
+ * @param  {http.ServerResponse}  res
+ * @param  {String}               filePath
+ * @param  {Object}               [options = {}]
  *
  * @return {void}
  *
@@ -393,12 +509,12 @@ Response.download = function (req, res, filePath, options = {}) {
  *
  * @method attachment
  *
- * @param  {Object}   req
- * @param  {Object}   res
- * @param  {String}   filePath
- * @param  {String}   [name = filePath]
- * @param  {String}   [disposition = 'attachment']
- * @param  {Object}   [options]
+ * @param  {http.IncomingMessage} req
+ * @param  {http.ServerResponse}  res
+ * @param  {String}               filePath
+ * @param  {String}               [name = filePath]
+ * @param  {String}               [disposition = 'attachment']
+ * @param  {Object}               [options]
  *
  * @return {void}
  *
@@ -417,8 +533,8 @@ Response.attachment = function (req, res, filePath, name = filePath, disposition
  *
  * @method location
  *
- * @param  {Object} res
- * @param  {String} url
+ * @param  {http.ServerResponse} res
+ * @param  {String}              url
  *
  * @return {void}
  */
@@ -431,10 +547,10 @@ Response.location = function (res, url) {
  *
  * @method redirect
  *
- * @param  {Object} req
- * @param  {Object} res
- * @param  {String} url
- * @param  {Number} [status = 302]
+ * @param  {http.IncomingMessage} req
+ * @param  {http.ServerResponse}  res
+ * @param  {String}               url
+ * @param  {Number}              [status = 302]
  *
  * @return {void}
  *
@@ -447,7 +563,6 @@ Response.redirect = function (req, res, url, status = 302) {
   const body = ''
   Response.status(res, status)
   Response.location(res, url)
-  Response.header(res, 'Content-Length', Buffer.byteLength(body))
   Response.send(req, res, body)
 }
 
@@ -456,8 +571,8 @@ Response.redirect = function (req, res, url, status = 302) {
  *
  * @method vary
  *
- * @param  {Object} res
- * @param  {String} field
+ * @param  {http.ServerResponse} res
+ * @param  {String}              field
  *
  * @return {void}
  */
@@ -467,20 +582,27 @@ Response.vary = function (res, field) {
 
 /**
  * Set content type header by looking up the actual
- * type and setting charset to utf8
+ * type and setting charset to utf8.
+ *
+ * ### Note
+ * When defining custom charset, you must set pass the complete
+ * content type, otherwise `false` will be set as the
+ * content-type header.
  *
  * @method type
  *
- * @param  {Object} res
- * @param  {String} type
- * @param  {String} [charset]
+ * @param  {http.IncomingMessage} req
+ * @param  {http.ServerResponse}  res
+ * @param  {String}              [charset]
  * @return {void}
  *
  * @example
  * ```js
  * nodeRes.type(res, 'html')
+ *
  * nodeRes.type(res, 'json')
- * nodeRes.type(res, 'application/json')
+ *
+ * nodeRes.type(res, 'text/html', 'ascii')
  * ```
  */
 Response.type = function (res, type, charset) {
