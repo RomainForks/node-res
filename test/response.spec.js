@@ -13,8 +13,8 @@ const test = require('japa')
 const supertest = require('supertest')
 const http = require('http')
 const path = require('path')
-const methods = require('../src/Response/methods')
-const Response = require('../')
+const Response = require('..')
+const methods = require('../methods')
 
 test.group('Response', function (assert) {
   test('should set dynamic method on response object which auto set statuses', async function (assert) {

@@ -3,6 +3,7 @@
   "version": "4.1.1",
   "description": "Nodejs http response builder",
   "main": "index.js",
+  "files": ["index.js", "methods.js"],
   "scripts": {
     "lint": "standard",
     "pretest": "npm run lint",
@@ -60,7 +61,7 @@
   },
   "nyc": {
     "include": [
-      "src"
+      "index.js", "methods.js"
     ]
   }
 }
