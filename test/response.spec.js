@@ -28,10 +28,7 @@ test.group('Response', function (assert) {
   test('should have all descriptive methods on response status, point to right status', function (assert) {
     const methodNames = Object.keys(methods)
     methodNames.forEach(function (method) {
-      const methodName = method.toLowerCase().replace(/_\w/g, function (index, match) {
-        return index.replace('_', '').toUpperCase()
-      })
-      assert.isFunction(Response[methodName])
+      assert.isFunction(Response[method])
     })
   })
 

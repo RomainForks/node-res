@@ -60,14 +60,11 @@ const returnContentAndType = function (body) {
 const Response = exports = module.exports = {}
 
 Response.descriptiveMethods = Object.keys(methods).map((method) => {
-  const methodName = method.toLowerCase().replace(/_\w/g, function (index, match) {
-    return index.replace('_', '').toUpperCase()
-  })
-  Response[methodName] = function (req, res, body) {
+  Response[method] = function (req, res, body) {
     Response.status(res, methods[method])
     Response.send(req, res, body)
   }
-  return methodName
+  return method
 })
 
 /**
