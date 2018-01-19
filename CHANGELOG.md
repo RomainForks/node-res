@@ -1,3 +1,13 @@
+<a name="4.1.4"></a>
+## [4.1.4](https://github.com/poppinss/node-res/compare/v4.1.3...v4.1.4) (2018-01-19)
+
+
+### Bug Fixes
+
+* **header:** do not cast headers to array forcefully ([2e032dd](https://github.com/poppinss/node-res/commit/2e032dd))
+
+
+
 <a name="4.1.3"></a>
 ## [4.1.3](https://github.com/poppinss/node-res/compare/v4.1.2...v4.1.3) (2018-01-19)
 
