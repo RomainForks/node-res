@@ -108,8 +108,8 @@ Response.getHeader = function (res, key) {
  * ```
  */
 Response.header = function (res, key, value) {
-  const values = Array.isArray(value) ? value : [value]
-  res.setHeader(key, values.map(String))
+  const values = Array.isArray(value) ? value.map(String) : value
+  res.setHeader(key, values)
 }
 
 /**
