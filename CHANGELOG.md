@@ -1,3 +1,24 @@
+<a name="5.0.0"></a>
+# [5.0.0](https://github.com/poppinss/node-res/compare/v4.1.4...v5.0.0) (2018-08-21)
+
+
+### Code Refactoring
+
+* remove download and attachment methods ([cdccb34](https://github.com/poppinss/node-res/commit/cdccb34))
+
+
+### Features
+
+* **stream:** add method to stream to response ([31d2180](https://github.com/poppinss/node-res/commit/31d2180))
+
+
+### BREAKING CHANGES
+
+* downlaod and attachment methods are removed, one can use `send` package from npm
+for this
+
+
+
 <a name="4.1.4"></a>
 ## [4.1.4](https://github.com/poppinss/node-res/compare/v4.1.3...v4.1.4) (2018-01-19)
 
