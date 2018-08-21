@@ -135,8 +135,8 @@ Response.append = function (res, key, value) {
   const previousValue = Response.getHeader(res, key)
 
   const headers = previousValue
-  ? (Array.isArray(previousValue) ? previousValue.concat(value) : [previousValue].concat(value))
-  : value
+    ? (Array.isArray(previousValue) ? previousValue.concat(value) : [previousValue].concat(value))
+    : value
 
   Response.header(res, key, headers)
 }
