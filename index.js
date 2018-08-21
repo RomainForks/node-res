@@ -12,6 +12,9 @@
 const mime = require('mime-types')
 const etag = require('etag')
 const vary = require('vary')
+const onFinished = require('on-finished')
+const destroy = require('destroy')
+
 const methods = require('./methods')
 
 const returnContentAndType = function (body) {
@@ -278,6 +281,19 @@ Response.end = function (res, payload) {
  * ```
  */
 Response.send = function (req, res, body = null, generateEtag = true) {
+  /**
+   * Handle streams
+   */
+  if (body && typeof (body.pipe) === 'function') {
+    Response
+      .stream(res, body)
+      .catch((error) => {
+        Response.status(res, error.code === 'ENOENT' ? 404 : 500)
+        Response.send(req, res, error.message, generateEtag)
+      })
+    return
+  }
+
   const chunk = Response.prepare(res, body)
 
   if (chunk === null || req.method === 'HEAD') {
@@ -316,7 +332,7 @@ Response.etag = function (res, body) {
 
 /**
  * Prepares the response body by encoding it properly. Also
- * sets appropriate headers based upn the body content type.
+ * sets appropriate headers based upon the body content type.
  *
  * This method is used internally by `send`, so you should
  * never use it when calling `send`.
@@ -560,4 +576,59 @@ Response.vary = function (res, field) {
 Response.type = function (res, type, charset) {
   type = charset ? `${type}; charset=${charset}` : type
   Response.safeHeader(res, 'Content-Type', mime.contentType(type))
+}
+
+/**
+ * Pipe stream to the response. Also this method will make sure
+ * to destroy the stream, if request gets cancelled.
+ *
+ * The promise resolve when response finishes and rejects, when
+ * stream raises errors.
+ *
+ * @param {Object} res
+ * @param {Stream} body
+ *
+ * @returns {Promise}
+ */
+Response.stream = function (res, body) {
+  return new Promise((resolve, reject) => {
+    if (typeof (body.pipe) !== 'function') {
+      reject(new Error('Body is not a valid stream'))
+      return
+    }
+
+    let finished = false
+
+    /**
+     * Error in stream
+     */
+    body.on('error', (error) => {
+      if (finished) {
+        return
+      }
+
+      finished = true
+      destroy(body)
+
+      reject(error)
+    })
+
+    /**
+     * Consumed stream
+     */
+    body.on('end', resolve)
+
+    /**
+     * Written response
+     */
+    onFinished(res, function () {
+      finished = true
+      destroy(body)
+    })
+
+    /**
+     * Pipe to res
+     */
+    body.pipe(res)
+  })
 }

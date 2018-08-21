@@ -12,7 +12,10 @@
 const test = require('japa')
 const supertest = require('supertest')
 const http = require('http')
+const path = require('path')
+const fs = require('fs')
 const Response = require('..')
+
 const methods = require('../methods')
 
 test.group('Response', function (assert) {
@@ -300,5 +303,61 @@ test.group('Response', function (assert) {
       res.end()
     })
     await supertest(server).get('/').expect('content-type', 'text/html; charset=utf-8').expect(200)
+  })
+
+  test('send stream', async function (assert) {
+    const server = http.createServer(function (req, res) {
+      Response.stream(res, fs.createReadStream(path.join(__dirname, './files', 'hello.txt')))
+    })
+
+    const { text } = await supertest(server).get('/').expect(200)
+    assert.equal(text.trim(), 'hello world')
+  })
+
+  test('set content type when defined explicitly', async function (assert) {
+    const server = http.createServer(function (req, res) {
+      Response.type(res, 'html')
+      Response.stream(res, fs.createReadStream(path.join(__dirname, './files', 'hello.txt')))
+    })
+
+    await supertest(server).get('/').expect('content-type', 'text/html; charset=utf-8').expect(200)
+  })
+
+  test('should not hit the maxListeners when making more than 10 calls', async function (assert) {
+    const server = http.createServer(function (req, res) {
+      Response.stream(res, fs.createReadStream(path.join(__dirname, './files', 'hello.txt')))
+    })
+    const requests = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map(() => supertest(server).get('/').expect(200))
+    await Promise.all(requests)
+  })
+
+  test('raise error when stream raises one', async function (assert) {
+    const server = http.createServer(function (req, res) {
+      Response
+        .stream(res, fs.createReadStream(path.join(__dirname, './files', 'foo.txt')))
+        .catch((error) => {
+          Response.send(req, res, error.code)
+        })
+    })
+
+    const { text } = await supertest(server).get('/')
+    assert.equal(text, 'ENOENT')
+  })
+
+  test('send stream', async function (assert) {
+    const server = http.createServer(function (req, res) {
+      Response.send(req, res, fs.createReadStream(path.join(__dirname, './files', 'hello.txt')))
+    })
+
+    const { text } = await supertest(server).get('/').expect(200)
+    assert.equal(text.trim(), 'hello world')
+  })
+
+  test('send stream errors as response', async function (assert) {
+    const server = http.createServer(function (req, res) {
+      Response.send(req, res, fs.createReadStream(path.join(__dirname, './files', 'foo.txt')))
+    })
+
+    await supertest(server).get('/').expect(404)
   })
 })
