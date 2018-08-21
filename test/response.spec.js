@@ -12,7 +12,6 @@
 const test = require('japa')
 const supertest = require('supertest')
 const http = require('http')
-const path = require('path')
 const Response = require('..')
 const methods = require('../methods')
 
@@ -219,34 +218,6 @@ test.group('Response', function (assert) {
     assert.equal(res.headers['content-length'], undefined)
   })
 
-  test('should send file for download with proper headers', async function (assert) {
-    const server = http.createServer(function (req, res) {
-      Response.download(req, res, path.join(__dirname, './files/hello.txt'))
-    })
-    const res = await supertest(server).get('/').expect(200)
-    assert.equal(res.text.trim(), 'hello world')
-    assert.equal(res.headers['content-type'], 'text/plain; charset=UTF-8')
-    assert.notEqual(res.headers['last-modified'], undefined)
-  })
-
-  test('should send file to be force downloaded with proper headers', async function (assert) {
-    const server = http.createServer(function (req, res) {
-      Response.attachment(req, res, path.join(__dirname, './files/hello.txt'))
-    })
-    const res = await supertest(server).get('/').expect(200)
-    assert.equal(res.text.trim(), 'hello world')
-    assert.equal(res.headers['content-type'], 'text/plain; charset=UTF-8')
-    assert.notEqual(res.headers['last-modified'], undefined)
-    assert.equal(res.headers['content-disposition'], 'attachment; filename="hello.txt"')
-  })
-
-  test('should throw an error when file is not readable', async function (assert) {
-    const server = http.createServer(function (req, res) {
-      Response.download(req, res, path.join(__dirname, './files/foo.txt'))
-    })
-    await supertest(server).get('/').expect(404)
-  })
-
   test('should set location header on response', async function (assert) {
     const server = http.createServer(function (req, res) {
       Response.location(res, 'http://localhost')
@@ -281,14 +252,6 @@ test.group('Response', function (assert) {
     })
     const res = await supertest(server).get('/').expect(200)
     assert.equal(res.headers['vary'], 'Origin')
-  })
-
-  test('should not hit the maxListeners when making more than 10 calls', async function (assert) {
-    const server = http.createServer(function (req, res) {
-      Response.download(req, res, path.join(__dirname, './files/hello.txt'))
-    })
-    const requests = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map(() => supertest(server).get('/').expect(200))
-    await Promise.all(requests)
   })
 
   test('should be able to set content type using the type method', async function (assert) {

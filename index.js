@@ -11,9 +11,7 @@
 
 const mime = require('mime-types')
 const etag = require('etag')
-const contentDisposition = require('content-disposition')
 const vary = require('vary')
-const send = require('send')
 const methods = require('./methods')
 
 const returnContentAndType = function (body) {
@@ -48,7 +46,9 @@ const returnContentAndType = function (body) {
    * Otherwise check whether body is an object or not. If yes
    * stringify it and otherwise return the exact copy.
    */
-  return typeof (body) === 'object' ? { body: JSON.stringify(body), type: 'application/json' } : { body }
+  return typeof (body) === 'object'
+    ? { body: JSON.stringify(body), type: 'application/json' }
+    : { body }
 }
 
 /**
@@ -59,6 +59,9 @@ const returnContentAndType = function (body) {
  */
 const Response = exports = module.exports = {}
 
+/**
+ * Copying all the descriptive methods to the response object.
+ */
 Response.descriptiveMethods = Object.keys(methods).map((method) => {
   Response[method] = function (req, res, body) {
     Response.status(res, methods[method])
@@ -475,55 +478,6 @@ Response.json = function (req, res, body, generateEtag) {
  */
 Response.jsonp = function (req, res, body, callbackFn = 'callback', generateEtag) {
   Response.send(req, res, Response.prepareJsonp(res, body, callbackFn), generateEtag)
-}
-
-/**
- * Download file as a stream. Stream will be closed once
- * download is finished.
- *
- * Options are passed directly to [send](https://www.npmjs.com/package/send)
- *
- * @method download
- *
- * @param  {http.IncomingMessage} req
- * @param  {http.ServerResponse}  res
- * @param  {String}               filePath
- * @param  {Object}               [options = {}]
- *
- * @return {void}
- *
- * @example
- * ```js
- * nodeRes.download(req, res, '/storage/data.txt')
- * ```
- */
-Response.download = function (req, res, filePath, options = {}) {
-  send(req, filePath, options).pipe(res)
-}
-
-/**
- * Send file as a stream with Content-Disposition of attachment
- * which forces the download of the file.
- *
- * @method attachment
- *
- * @param  {http.IncomingMessage} req
- * @param  {http.ServerResponse}  res
- * @param  {String}               filePath
- * @param  {String}               [name = filePath]
- * @param  {String}               [disposition = 'attachment']
- * @param  {Object}               [options]
- *
- * @return {void}
- *
- * @example
- * ```js
- * nodeRes.attachment(req, res, '/storage/data.txt', 'data.txt')
- * ```
- */
-Response.attachment = function (req, res, filePath, name = filePath, disposition = 'attachment', options) {
-  Response.header(res, 'Content-Disposition', contentDisposition(name, {type: disposition}))
-  send(req, filePath, options).pipe(res)
 }
 
 /**

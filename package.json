@@ -30,10 +30,8 @@
     "supertest": "^3.1.0"
   },
   "dependencies": {
-    "content-disposition": "^0.5.2",
     "etag": "^1.8.1",
     "mime-types": "^2.1.19",
-    "send": "^0.16.2",
     "vary": "^1.1.2"
   },
   "directories": {
