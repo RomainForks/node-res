@@ -1,6 +1,6 @@
 {
   "name": "node-res",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Nodejs http response builder",
   "main": "index.js",
   "files": [

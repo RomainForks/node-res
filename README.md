@@ -53,31 +53,37 @@ http.createServer(function (req, res) {
 ```
 
 ## API
+<a name="module_Response"></a>
 
-* [getHeader(res, key)](#module_Response..getHeader) ⇒ <code>Array</code> \| <code>String</code>
-* [header(res, key, value)](#module_Response..header) ⇒ <code>void</code>
-* [append(res, key, value)](#module_Response..append) ⇒ <code>void</code>
-* [status(res, code)](#module_Response..status) ⇒ <code>void</code>
-* [safeHeader(res, key, value)](#module_Response..safeHeader) ⇒ <code>void</code>
-* [removeHeader(res, key)](#module_Response..removeHeader) ⇒ <code>void</code>
-* [write(res, body)](#module_Response..write) ⇒ <code>void</code>
-* [end(res, [payload])](#module_Response..end) ⇒ <code>void</code>
-* [send(req, res, body, [generateEtag])](#module_Response..send) ⇒ <code>void</code>
-* [etag(res, body)](#module_Response..etag) ⇒ <code>void</code>
-* [prepare(res, body)](#module_Response..prepare) ⇒ <code>String</code>
-* [prepareJsonp(res, body, callbackFn)](#module_Response..prepareJsonp) ⇒ <code>String</code>
-* [json(req, res, body, [generateEtag])](#module_Response..json) ⇒ <code>void</code>
-* [jsonp(req, res, body, [callbackFn], [generateEtag])](#module_Response..jsonp) ⇒ <code>void</code>
-* [download(req, res, filePath, [options])](#module_Response..download) ⇒ <code>void</code>
-* [attachment(req, res, filePath, [name], [disposition], [options])](#module_Response..attachment) ⇒ <code>void</code>
-* [location(res, url)](#module_Response..location) ⇒ <code>void</code>
-* [redirect(req, res, url, [status])](#module_Response..redirect) ⇒ <code>void</code>
-* [vary(res, field)](#module_Response..vary) ⇒ <code>void</code>
-* [type(req, res, [charset])](#module_Response..type) ⇒ <code>void</code>
+## Response
+A simple IO module to make consistent HTTP response, without
+worrying about underlying details.
+
+
+* [Response](#module_Response)
+    * [~getHeader(res, key)](#module_Response..getHeader) ⇒ <code>Array</code> \| <code>String</code>
+    * [~header(res, key, value)](#module_Response..header) ⇒ <code>void</code>
+    * [~append(res, key, value)](#module_Response..append) ⇒ <code>void</code>
+    * [~status(res, code)](#module_Response..status) ⇒ <code>void</code>
+    * [~safeHeader(res, key, value)](#module_Response..safeHeader) ⇒ <code>void</code>
+    * [~removeHeader(res, key)](#module_Response..removeHeader) ⇒ <code>void</code>
+    * [~write(res, body)](#module_Response..write) ⇒ <code>void</code>
+    * [~end(res, [payload])](#module_Response..end) ⇒ <code>void</code>
+    * [~send(req, res, body, [generateEtag])](#module_Response..send) ⇒ <code>void</code>
+    * [~etag(res, body)](#module_Response..etag) ⇒ <code>void</code>
+    * [~prepare(res, body)](#module_Response..prepare) ⇒ <code>String</code>
+    * [~prepareJsonp(res, body, callbackFn)](#module_Response..prepareJsonp) ⇒ <code>String</code>
+    * [~json(req, res, body, [generateEtag])](#module_Response..json) ⇒ <code>void</code>
+    * [~jsonp(req, res, body, [callbackFn], [generateEtag])](#module_Response..jsonp) ⇒ <code>void</code>
+    * [~location(res, url)](#module_Response..location) ⇒ <code>void</code>
+    * [~redirect(req, res, url, [status])](#module_Response..redirect) ⇒ <code>void</code>
+    * [~vary(res, field)](#module_Response..vary) ⇒ <code>void</code>
+    * [~type(req, res, [charset])](#module_Response..type) ⇒ <code>void</code>
+    * [~stream(res, body)](#module_Response..stream) ⇒ <code>Promise</code>
 
 <a name="module_Response..getHeader"></a>
 
-### getHeader(res, key) ⇒ <code>Array</code> \| <code>String</code>
+### Response~getHeader(res, key) ⇒ <code>Array</code> \| <code>String</code>
 Returns the value of an existing header on
 the response object
 
@@ -95,7 +101,7 @@ nodeRes.getHeader(res, 'Content-type')
 ```
 <a name="module_Response..header"></a>
 
-### header(res, key, value) ⇒ <code>void</code>
+### Response~header(res, key, value) ⇒ <code>void</code>
 Sets header on the response object. This method will wipe off
 existing values. To append to existing values, use `append`.
 
@@ -116,7 +122,7 @@ nodeRes.header(res, 'Link', ['<http://localhost/>', '<http://localhost:3000/>'])
 ```
 <a name="module_Response..append"></a>
 
-### append(res, key, value) ⇒ <code>void</code>
+### Response~append(res, key, value) ⇒ <code>void</code>
 Appends value to the header existing values.
 
 **Kind**: inner method of [<code>Response</code>](#module_Response)  
@@ -136,7 +142,7 @@ nodeRes.append(res, 'Link', ['<http://localhost/>', '<http://localhost:3000/>'])
 ```
 <a name="module_Response..status"></a>
 
-### status(res, code) ⇒ <code>void</code>
+### Response~status(res, code) ⇒ <code>void</code>
 Set status on the HTTP res object
 
 **Kind**: inner method of [<code>Response</code>](#module_Response)  
@@ -152,7 +158,7 @@ nodeRes.status(res, 200)
 ```
 <a name="module_Response..safeHeader"></a>
 
-### safeHeader(res, key, value) ⇒ <code>void</code>
+### Response~safeHeader(res, key, value) ⇒ <code>void</code>
 Sets the header on response object, only if it
 does not exists.
 
@@ -170,7 +176,7 @@ nodeRes.safeHeader(res, 'Content-type', 'application/json')
 ```
 <a name="module_Response..removeHeader"></a>
 
-### removeHeader(res, key) ⇒ <code>void</code>
+### Response~removeHeader(res, key) ⇒ <code>void</code>
 Removes the header from response
 
 **Kind**: inner method of [<code>Response</code>](#module_Response)  
@@ -186,7 +192,7 @@ nodeRes.removeHeader(res, 'Content-type')
 ```
 <a name="module_Response..write"></a>
 
-### write(res, body) ⇒ <code>void</code>
+### Response~write(res, body) ⇒ <code>void</code>
 Write string or buffer to the response object.
 
 **Kind**: inner method of [<code>Response</code>](#module_Response)  
@@ -202,7 +208,7 @@ nodeRes.write(res, 'Hello world')
 ```
 <a name="module_Response..end"></a>
 
-### end(res, [payload]) ⇒ <code>void</code>
+### Response~end(res, [payload]) ⇒ <code>void</code>
 Explictly end HTTP response
 
 **Kind**: inner method of [<code>Response</code>](#module_Response)  
@@ -218,7 +224,7 @@ nodeRes.end(res, 'Hello world')
 ```
 <a name="module_Response..send"></a>
 
-### send(req, res, body, [generateEtag]) ⇒ <code>void</code>
+### Response~send(req, res, body, [generateEtag]) ⇒ <code>void</code>
 Send body as the HTTP response and end it. Also
 this method will set the appropriate `Content-type`
 and `Content-length`.
@@ -232,7 +238,7 @@ as 204.
 | --- | --- | --- |
 | req | <code>http.ServerRequest</code> |  | 
 | res | <code>http.ServerResponse</code> |  | 
-| body | <code>Mixed</code> |  | 
+| body | <code>String</code> \| <code>Buffer</code> \| <code>Object</code> \| <code>Stream</code> |  | 
 | [generateEtag] | <code>Boolean</code> | <code>true</code> | 
 
 **Example**  
@@ -253,7 +259,7 @@ nodeRes.send(req, res, 'Hello world', false)
 ```
 <a name="module_Response..etag"></a>
 
-### etag(res, body) ⇒ <code>void</code>
+### Response~etag(res, body) ⇒ <code>void</code>
 Sets the Etag header for a given body chunk
 
 **Kind**: inner method of [<code>Response</code>](#module_Response)  
@@ -269,9 +275,9 @@ nodeRes.etag(res, 'Hello world')
 ```
 <a name="module_Response..prepare"></a>
 
-### prepare(res, body) ⇒ <code>String</code>
+### Response~prepare(res, body) ⇒ <code>String</code>
 Prepares the response body by encoding it properly. Also
-sets appropriate headers based upn the body content type.
+sets appropriate headers based upon the body content type.
 
 This method is used internally by `send`, so you should
 never use it when calling `send`.
@@ -303,7 +309,7 @@ if (chunk) {
 ```
 <a name="module_Response..prepareJsonp"></a>
 
-### prepareJsonp(res, body, callbackFn) ⇒ <code>String</code>
+### Response~prepareJsonp(res, body, callbackFn) ⇒ <code>String</code>
 Prepares response for JSONP
 
 **Kind**: inner method of [<code>Response</code>](#module_Response)  
@@ -331,7 +337,7 @@ if (chunk) {
 ```
 <a name="module_Response..json"></a>
 
-### json(req, res, body, [generateEtag]) ⇒ <code>void</code>
+### Response~json(req, res, body, [generateEtag]) ⇒ <code>void</code>
 Returns the HTTP response with `Content-type`
 set to `application/json`.
 
@@ -351,7 +357,7 @@ nodeRes.json(req, res, [ 'virk', 'joe' ])
 ```
 <a name="module_Response..jsonp"></a>
 
-### jsonp(req, res, body, [callbackFn], [generateEtag]) ⇒ <code>void</code>
+### Response~jsonp(req, res, body, [callbackFn], [generateEtag]) ⇒ <code>void</code>
 Make JSONP response with `Content-type` set to
 `text/javascript`.
 
@@ -369,51 +375,9 @@ Make JSONP response with `Content-type` set to
 ```js
 nodeRes.jsonp(req, res, { name: 'virk' }, 'callback')
 ```
-<a name="module_Response..download"></a>
-
-### download(req, res, filePath, [options]) ⇒ <code>void</code>
-Download file as a stream. Stream will be closed once
-download is finished.
-
-Options are passed directly to [send](https://www.npmjs.com/package/send)
-
-**Kind**: inner method of [<code>Response</code>](#module_Response)  
-
-| Param | Type | Default |
-| --- | --- | --- |
-| req | <code>http.IncomingMessage</code> |  | 
-| res | <code>http.ServerResponse</code> |  | 
-| filePath | <code>String</code> |  | 
-| [options] | <code>Object</code> | <code>{}</code> | 
-
-**Example**  
-```js
-nodeRes.download(req, res, '/storage/data.txt')
-```
-<a name="module_Response..attachment"></a>
-
-### attachment(req, res, filePath, [name], [disposition], [options]) ⇒ <code>void</code>
-Send file as a stream with Content-Disposition of attachment
-which forces the download of the file.
-
-**Kind**: inner method of [<code>Response</code>](#module_Response)  
-
-| Param | Type | Default |
-| --- | --- | --- |
-| req | <code>http.IncomingMessage</code> |  | 
-| res | <code>http.ServerResponse</code> |  | 
-| filePath | <code>String</code> |  | 
-| [name] | <code>String</code> | <code>filePath</code> | 
-| [disposition] | <code>String</code> | <code>&#x27;attachment&#x27;</code> | 
-| [options] | <code>Object</code> |  | 
-
-**Example**  
-```js
-nodeRes.attachment(req, res, '/storage/data.txt', 'data.txt')
-```
 <a name="module_Response..location"></a>
 
-### location(res, url) ⇒ <code>void</code>
+### Response~location(res, url) ⇒ <code>void</code>
 Set `Location` header on the HTTP response.
 
 **Kind**: inner method of [<code>Response</code>](#module_Response)  
@@ -425,7 +389,7 @@ Set `Location` header on the HTTP response.
 
 <a name="module_Response..redirect"></a>
 
-### redirect(req, res, url, [status]) ⇒ <code>void</code>
+### Response~redirect(req, res, url, [status]) ⇒ <code>void</code>
 Redirect the HTTP request to the given url.
 
 **Kind**: inner method of [<code>Response</code>](#module_Response)  
@@ -443,7 +407,7 @@ nodeRes.redirect(req, res, '/')
 ```
 <a name="module_Response..vary"></a>
 
-### vary(res, field) ⇒ <code>void</code>
+### Response~vary(res, field) ⇒ <code>void</code>
 Add vary header to the HTTP response.
 
 **Kind**: inner method of [<code>Response</code>](#module_Response)  
@@ -455,7 +419,7 @@ Add vary header to the HTTP response.
 
 <a name="module_Response..type"></a>
 
-### type(req, res, [charset]) ⇒ <code>void</code>
+### Response~type(req, res, [charset]) ⇒ <code>void</code>
 Set content type header by looking up the actual
 type and setting charset to utf8.
 
@@ -479,6 +443,32 @@ nodeRes.type(res, 'html')
 nodeRes.type(res, 'json')
 
 nodeRes.type(res, 'text/html', 'ascii')
+```
+<a name="module_Response..stream"></a>
+
+### Response~stream(res, body) ⇒ <code>Promise</code>
+Pipe stream to the response. Also this method will make sure
+to destroy the stream, if request gets cancelled.
+
+The promise resolve when response finishes and rejects, when
+stream raises errors.
+
+**Kind**: inner method of [<code>Response</code>](#module_Response)  
+
+| Param | Type |
+| --- | --- |
+| res | <code>Object</code> | 
+| body | <code>Stream</code> | 
+
+**Example**  
+```js
+Response.stream(res, fs.createReadStream('foo.txt'))
+
+// handle stream errors
+Response
+  .stream(res, fs.createReadStream('foo.txt'))
+  .catch((error) => {
+  })
 ```
 
 [appveyor-image]: https://img.shields.io/appveyor/ci/thetutlage/node-res/master.svg?style=flat-square
