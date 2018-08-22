@@ -256,10 +256,10 @@ Response.end = function (res, payload) {
  *
  * @method send
  *
- * @param  {http.ServerRequest}   req
- * @param  {http.ServerResponse}  res
- * @param  {Mixed}                body
- * @param  {Boolean}              [generateEtag = true]
+ * @param  {http.ServerRequest}             req
+ * @param  {http.ServerResponse}            res
+ * @param  {String|Buffer|Object|Stream}    body
+ * @param  {Boolean}                        [generateEtag = true]
  *
  * @return {void}
  *
@@ -585,10 +585,23 @@ Response.type = function (res, type, charset) {
  * The promise resolve when response finishes and rejects, when
  * stream raises errors.
  *
+ * @method stream
+ *
  * @param {Object} res
  * @param {Stream} body
  *
  * @returns {Promise}
+ *
+ * @example
+ * ```js
+ * Response.stream(res, fs.createReadStream('foo.txt'))
+ *
+ * // handle stream errors
+ * Response
+ *   .stream(res, fs.createReadStream('foo.txt'))
+ *   .catch((error) => {
+ *   })
+ * ```
  */
 Response.stream = function (res, body) {
   return new Promise((resolve, reject) => {
