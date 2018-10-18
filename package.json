@@ -2,11 +2,7 @@
   "name": "node-res",
   "version": "5.0.1",
   "description": "Nodejs http response builder",
-  "main": "index.js",
-  "files": [
-    "index.js",
-    "methods.js"
-  ],
+  "main": "build/Response/index.js",
   "scripts": {
     "pretest": "npm run lint",
     "test:local": "FORCE_COLOR=true node bin/index.js --local",
