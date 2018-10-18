@@ -1,15 +1,13 @@
-'use strict'
-
-/*
+/**
  * node-res
  *
  * (c) Harminder Virk <virk@adonisjs.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
-*/
+ */
 
-module.exports = {
+export default {
   continue: 100,
   switchingProtocols: 101,
   ok: 200,
@@ -51,5 +49,5 @@ module.exports = {
   badGateway: 502,
   serviceUnavailable: 503,
   gatewayTimeout: 504,
-  httpVersionNotSupported: 505
+  httpVersionNotSupported: 505,
 }
